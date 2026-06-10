@@ -168,11 +168,11 @@ main {
 
 .section-label {
   font-family: var(--ff-mono);
-  font-size: 0.58rem;
+  font-size: 0.6rem;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--grey);
+  color: var(--black);
   margin-bottom: 0.85rem;
   display: flex;
   align-items: center;
@@ -197,10 +197,11 @@ main {
 .field-wrap { display: flex; flex-direction: column; gap: 0.3rem; }
 .field-label {
   font-family: var(--ff-mono);
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--grey);
+  color: var(--black);
+  font-weight: 500;
 }
 
 /* ── INPUTS ── */
@@ -230,80 +231,40 @@ select {
   cursor: pointer;
 }
 
-/* ── FORMAT GRID ── */
-.format-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* ── FORMAT INPUT ── */
+.format-input-wrap { display: flex; flex-direction: column; gap: 0.3rem; }
+.format-examples {
+  margin-top: 0.5rem;
+  font-family: var(--ff-mono);
+  font-size: 0.58rem;
+  color: var(--grey);
+  line-height: 1.7;
+}
+
+/* ── LENGTH CHIPS ── */
+.length-chips {
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
+  margin-bottom: 0.6rem;
 }
-.format-btn {
-  background: var(--white);
+.length-chip {
+  font-family: var(--ff-mono);
+  font-size: 0.62rem;
+  padding: 0.3rem 0.75rem;
   border: 1.5px solid var(--grey-mid);
-  padding: 0.75rem 0.9rem;
+  background: var(--white);
+  color: var(--black);
   cursor: pointer;
-  text-align: left;
   transition: all 0.1s;
-  position: relative;
-  border-left-width: 3px;
 }
-.format-btn:hover { border-color: var(--black); background: var(--off-white); }
-.format-btn.active {
-  background: var(--black);
-  border-color: var(--black);
+.length-chip:hover { border-color: var(--blue); color: var(--blue); }
+.length-chip.active {
+  background: var(--blue);
+  border-color: var(--blue);
   color: var(--white);
 }
-.format-btn[data-format="story"]      { border-left-color: var(--red); }
-.format-btn[data-format="explainer"]  { border-left-color: var(--blue); }
-.format-btn[data-format="interview"]  { border-left-color: var(--green); }
-.format-btn[data-format="timely"]     { border-left-color: var(--yellow); }
-.format-btn[data-format="recap"]      { border-left-color: var(--purple); }
-.format-btn[data-format="preview"]    { border-left-color: var(--green-light); }
-.format-btn[data-format="foundation"] { border-left-color: var(--red-light); }
-.format-btn.active { border-left-color: var(--red) !important; }
-.fmt-name {
-  display: block;
-  font-family: var(--ff-sans);
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.2;
-  margin-bottom: 0.2rem;
-}
-.fmt-desc {
-  display: block;
-  font-family: var(--ff-mono);
-  font-size: 0.56rem;
-  opacity: 0.5;
-  line-height: 1.3;
-}
-.format-btn.active .fmt-desc { opacity: 0.55; }
-.format-btn.full-width { grid-column: span 2; }
-
-/* ── CUSTOM FORMAT ── */
-.custom-format-wrap {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--grey-light);
-}
-.format-detail {
-  display: none;
-  margin-top: 0.65rem;
-  background: var(--black);
-  padding: 0.7rem 0.9rem;
-  font-family: var(--ff-mono);
-  font-size: 0.58rem;
-  line-height: 1.8;
-  color: rgba(255,255,255,0.7);
-  border-left: 3px solid var(--red);
-}
-.format-detail.visible { display: block; }
-.format-detail strong {
-  display: block;
-  font-size: 0.58rem;
-  color: var(--red);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 0.25rem;
-}
+.length-custom-wrap { display: flex; flex-direction: column; gap: 0.3rem; }
 
 /* ── GENERATE ── */
 .generate-btn {
@@ -356,7 +317,7 @@ select {
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--grey);
+  color: var(--black);
 }
 .output-actions { display: flex; gap: 0.4rem; }
 .action-btn {
@@ -368,7 +329,7 @@ select {
   padding: 0.3rem 0.75rem;
   border: 1.5px solid var(--grey-mid);
   background: none;
-  color: var(--grey);
+  color: var(--black);
   cursor: pointer;
   transition: all 0.12s;
 }
@@ -652,43 +613,12 @@ select {
       </div>
     </div>
 
-    <!-- FORMAT -->
     <div class="panel-section">
       <div class="section-label"><span class="num num-02">02</span> Format</div>
-      <div class="format-grid">
-        <button class="format-btn" data-format="story" onclick="selectFormat(this)">
-          <span class="fmt-name">Brand Story</span>
-          <span class="fmt-desc">Case studies, campaigns, docs</span>
-        </button>
-        <button class="format-btn" data-format="explainer" onclick="selectFormat(this)">
-          <span class="fmt-name">Explainer</span>
-          <span class="fmt-desc">Products, ideas, processes</span>
-        </button>
-        <button class="format-btn" data-format="interview" onclick="selectFormat(this)">
-          <span class="fmt-name">Interview</span>
-          <span class="fmt-desc">Expert, founder, customer</span>
-        </button>
-        <button class="format-btn" data-format="timely" onclick="selectFormat(this)">
-          <span class="fmt-name">News & Issues</span>
-          <span class="fmt-desc">Reactive, policy, announcements</span>
-        </button>
-        <button class="format-btn" data-format="recap" onclick="selectFormat(this)">
-          <span class="fmt-name">Event Recap</span>
-          <span class="fmt-desc">Conferences, summits, panels</span>
-        </button>
-        <button class="format-btn" data-format="preview" onclick="selectFormat(this)">
-          <span class="fmt-name">Preview</span>
-          <span class="fmt-desc">Upcoming events, launches</span>
-        </button>
-        <button class="format-btn full-width" data-format="foundation" onclick="selectFormat(this)">
-          <span class="fmt-name">Beginner's Guide</span>
-          <span class="fmt-desc">Onboarding, evergreen education, campaign entry points</span>
-        </button>
-      </div>
-      <div class="format-detail" id="format-detail"></div>
-      <div class="custom-format-wrap">
-        <div class="field-label" style="margin-bottom:0.3rem;">Or describe your own format</div>
-        <input type="text" id="custom-format" placeholder="e.g. 60-second social video, internal town hall, product launch announcement…" oninput="onCustomFormatInput()" />
+      <div class="format-input-wrap">
+        <div class="field-label" style="margin-bottom:0.3rem;">What type of video is this?</div>
+        <input type="text" id="custom-format" placeholder="e.g. Talking head, Voiceover explainer, Interview, Social short, Documentary…" oninput="validateForm()" />
+        <div class="format-examples">Describe the format as you would in a brief — the more specific the better.</div>
       </div>
     </div>
 
@@ -698,9 +628,26 @@ select {
       <textarea id="content-input" placeholder="Paste your copy, outline, bullet points, or keywords. The more context you give, the stronger the script."></textarea>
     </div>
 
+    <!-- LENGTH -->
+    <div class="panel-section">
+      <div class="section-label"><span class="num num-03" style="background:var(--green);">04</span> Target length <span style="font-weight:300;letter-spacing:0;text-transform:none;font-family:var(--ff-body);font-size:0.75rem;opacity:0.4;">(optional)</span></div>
+      <div class="length-chips">
+        <button class="length-chip" onclick="selectLength(this)">30 sec</button>
+        <button class="length-chip" onclick="selectLength(this)">60 sec</button>
+        <button class="length-chip" onclick="selectLength(this)">2 min</button>
+        <button class="length-chip" onclick="selectLength(this)">3 min</button>
+        <button class="length-chip" onclick="selectLength(this)">5 min</button>
+        <button class="length-chip" onclick="selectLength(this)">10 min+</button>
+      </div>
+      <div class="length-custom-wrap">
+        <div class="field-label" style="margin-bottom:0.3rem;">Or specify</div>
+        <input type="text" id="custom-length" placeholder="e.g. 90 seconds, 4 minutes, under 3 mins…" oninput="onCustomLengthInput()" />
+      </div>
+    </div>
+
     <!-- SOURCE MATERIAL -->
     <div class="panel-section">
-      <div class="section-label"><span class="num num-04">04</span> Additional source material <span style="font-weight:300;letter-spacing:0;text-transform:none;font-family:var(--ff-body);font-size:0.75rem;opacity:0.4;">(optional)</span></div>
+      <div class="section-label"><span class="num num-04">05</span> Additional source material <span style="font-weight:300;letter-spacing:0;text-transform:none;font-family:var(--ff-body);font-size:0.75rem;opacity:0.4;">(optional)</span></div>
       <textarea id="source-input" style="min-height:80px;" placeholder="Paste any supporting text — data, quotes, background notes, product details — that Claude should draw from."></textarea>
       <div style="margin-top:0.4rem;font-family:var(--ff-mono);font-size:0.56rem;color:var(--grey-mid);letter-spacing:0.06em;">Paste text only. URLs cannot be read by this tool.</div>
     </div>
@@ -767,7 +714,6 @@ select {
 /* ── CONFIG ── */
 const STORAGE_KEY = 'id_script_dev_worker_v1';
 let workerUrl = localStorage.getItem(STORAGE_KEY) || 'https://wna-script-generator.elliot-thorne.workers.dev';
-let selectedFormat = null;
 let conversationHistory = [];
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -937,215 +883,28 @@ Emotional register: Sober and respectful when discussing harm or difficulty; qui
 - Direction notes go in [square brackets]
 - Output must be ready to read aloud as a first draft`;
 
-/* ══ FORMAT METADATA ══ */
-const FORMAT_META = {
-  story:      { name: 'Story-led',         beats: 'Hook → Context → Development → Human/Practical Consequence → Resolution → Close + CTA',        length: 'Variable' },
-  explainer:  { name: 'Concept Explainer', beats: 'Hook → Baseline → Explanation → Example or Application → Why It Matters → Close + CTA',        length: 'Variable' },
-  interview:  { name: 'Interview-led',     beats: 'Introduction → Question Architecture → Bridge Lines → Follow-up Prompts → Close → CTA',         length: 'Variable' },
-  timely:     { name: 'Timely Response',   beats: "What Happened → Why It Matters → What You Need To Know → Known & Unknown → Client Perspective → Close + CTA", length: 'Variable' },
-  recap:      { name: 'Event Recap',       beats: 'Opening Significance → Key Moments → Context → Audience Relevance → What Happens Next → Close + CTA', length: 'Variable' },
-  preview:    { name: 'Preview',           beats: "What Is Happening → Why It Matters → What To Watch For → What's Uncertain → Close + CTA",       length: 'Variable' },
-  foundation: { name: 'Foundation Guide',  beats: 'Hook → Start From Zero → Build Logically → Address The Obvious Concern → Why This Matters Now → Close + CTA', length: 'Variable' }
-};
-
-/* ══ FORMAT PROMPTS ══ */
-const FORMAT_PROMPTS = {
-  story: `FORMAT: Story-led Script
-For brand stories, campaign films, case studies, documentaries, founder stories, historical pieces.
-The job: Take the viewer through a story with a clear beginning, development, consequence, and resolution.
-
-Structure — use these exact labels in ALL CAPS:
-
-HOOK
-Surface the tension, question, or moment that makes the story worth watching. Do not mistake chronology for story — a story needs tension, movement, and meaning.
-
-CONTEXT
-Establish what the viewer needs to know before the story moves.
-
-DEVELOPMENT
-Show what happened, changed, escalated, or was discovered.
-
-HUMAN OR PRACTICAL CONSEQUENCE
-Explain why it mattered to real people, organisations, communities, customers, or the client.
-
-RESOLUTION
-Show what changed, what was learned, or what the story reveals.
-
-CLOSE + CTA
-End with a thought that resolves the story and naturally leads to the next action. The CTA must feel like the logical next step, not an interruption.`,
-
-  explainer: `FORMAT: Concept Explainer
-For products, services, ideas, processes, terminology, technology, policies, systems.
-The job: Take one thing the audience does not fully understand and make it clear. One concept per script.
-
-Structure — use these exact labels in ALL CAPS:
-
-HOOK
-Frame the question the script answers.
-
-BASELINE
-Start with what the audience probably knows, assumes, or gets wrong.
-
-EXPLANATION
-Build the concept step by step. Each step earns the next. No jargon without immediate context.
-
-EXAMPLE OR APPLICATION
-Show how it works in the real world.
-
-WHY IT MATTERS
-Connect the explanation to the audience's life, work, decision, or problem.
-
-CLOSE + CTA
-Resolve the opening question clearly. The CTA is the natural next step.
-
-Writer's note: One concept per script. If the explanation needs several other explanations to work, the topic is too broad.`,
-
-  interview: `FORMAT: Interview-led Script
-For expert interviews, founder interviews, customer conversations, partner films, internal leadership content.
-The job: Script the frame, not the person. The guest provides the substance. The script provides the authority context that makes that substance land.
-
-Structure — use these exact labels in ALL CAPS:
-
-INTRODUCTION
-Who is speaking, why they matter, and what question the conversation will answer. Factual, not promotional.
-
-QUESTION ARCHITECTURE
-Write 6–8 questions in order of increasing depth: start accessible, move toward specificity and reflection. Each question should be answerable without the previous — but more rewarding if the viewer has followed from the start.
-
-BRIDGE LINES
-Short transitions that maintain momentum between topics without interrupting the guest's voice.
-
-FOLLOW-UP PROMPTS
-Questions that invite examples, stories, evidence, or clarification.
-
-CLOSE + CTA
-Draw out one clear thread from the conversation. Not a summary — a conclusion. Then the CTA.
-
-Writer's note: The best interview scripts create the conditions for a strong answer. Do not over-script the speaker.`,
-
-  timely: `FORMAT: Timely Response Script
-For news, announcements, policy changes, product launches, industry developments, reactive content.
-The job: Help the audience understand what has happened, why it matters, and what to do or think next. Speed is useful. Accuracy is essential.
-
-Structure — use these exact labels in ALL CAPS:
-
-WHAT HAPPENED
-State the development clearly and early. No wind-up.
-
-WHY IT MATTERS
-Explain the relevance to the audience.
-
-WHAT YOU NEED TO KNOW
-Provide the essential context in plain language.
-
-WHAT IS KNOWN AND UNKNOWN
-Separate fact from interpretation. If something is uncertain, say so explicitly.
-
-CLIENT PERSPECTIVE
-Add the client's useful, credible contribution to the conversation. Not opinion for its own sake — genuine value-add.
-
-CLOSE + CTA
-Tell the audience where to go next or what to watch for.`,
-
-  recap: `FORMAT: Event Recap Script
-For conferences, launches, panels, festivals, summits, exhibitions, activations.
-The job: Explain the significance of an event, not just what happened at it. A list of speakers or sessions is not a script.
-
-Structure — use these exact labels in ALL CAPS:
-
-OPENING SIGNIFICANCE
-Why did this event matter? What was at stake going in?
-
-KEY MOMENTS
-Select two or three meaningful highlights. Each treated as a mini-narrative: what happened, why it's significant, what it signals or changes.
-
-CONTEXT
-Explain why those moments mattered beyond the room.
-
-AUDIENCE RELEVANCE
-Connect the event to what the viewer actually cares about.
-
-WHAT HAPPENS NEXT
-Show the event's consequence or next step.
-
-CLOSE + CTA
-Resolve with a clear forward path.`,
-
-  preview: `FORMAT: Preview / What to Expect Script
-For upcoming events, campaigns, launches, milestones, reports, seasonal activity.
-The job: Prepare the viewer for something that is about to happen and give them a reason to care. Anticipation should come from relevance, not hype.
-
-Structure — use these exact labels in ALL CAPS:
-
-WHAT IS HAPPENING
-Describe the event, campaign, launch, or moment plainly.
-
-WHY IT MATTERS
-Explain the relevance to the audience specifically.
-
-WHAT TO WATCH FOR
-Two or three specific, concrete, verifiable things to pay attention to.
-
-WHAT IS UNCERTAIN OR STILL DEVELOPING
-Create legitimate anticipation by being honest about what is not yet known.
-
-CLOSE + CTA
-Point toward the follow-up, launch, event, or next piece of content.`,
-
-  foundation: `FORMAT: Foundation Guide
-For beginner guides, onboarding content, introductory explainers, evergreen education, campaign entry points.
-The job: Give the audience the clearest possible starting point. Beginner content is not basic content — it is often the hardest content to write well.
-
-Structure — use these exact labels in ALL CAPS:
-
-HOOK
-Begin with the question the audience already has, stated plainly.
-
-START FROM ZERO
-Assume no prior knowledge. Do not assume low intelligence. These are different things.
-
-BUILD LOGICALLY
-Each idea should make the next idea easier to understand.
-
-ADDRESS THE OBVIOUS CONCERN
-Name what the audience is likely thinking or worried about. Meet it directly.
-
-WHY THIS MATTERS NOW
-Connect the foundation to a current need, decision, or context.
-
-CLOSE + CTA
-Send the viewer to the next logical step.`
-};
-
-/* ══ FORMAT SELECTION ══ */
-function selectFormat(btn) {
-  document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+/* ══ LENGTH SELECTION ══ */
+function selectLength(btn) {
+  document.querySelectorAll('.length-chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
-  selectedFormat = btn.dataset.format;
-  const meta = FORMAT_META[selectedFormat];
-  const detail = document.getElementById('format-detail');
-  detail.innerHTML = `<strong>${meta.name}</strong>${meta.beats}`;
-  detail.classList.add('visible');
-  // clear custom input
-  document.getElementById('custom-format').value = '';
-  validateForm();
+  document.getElementById('custom-length').value = '';
 }
 
-function onCustomFormatInput() {
-  const val = document.getElementById('custom-format').value.trim();
-  if (val.length > 0) {
-    // deselect any active format button
-    document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
-    selectedFormat = null;
-    document.getElementById('format-detail').classList.remove('visible');
-  }
-  validateForm();
+function onCustomLengthInput() {
+  document.querySelectorAll('.length-chip').forEach(c => c.classList.remove('active'));
+}
+
+function getLength() {
+  const chip = document.querySelector('.length-chip.active');
+  if (chip) return chip.textContent;
+  const custom = document.getElementById('custom-length').value.trim();
+  return custom || null;
 }
 
 /* ══ VALIDATION ══ */
 function validateForm() {
   const hasContent = document.getElementById('content-input').value.trim().length > 10;
-  const hasFormat  = !!selectedFormat || document.getElementById('custom-format').value.trim().length > 3;
+  const hasFormat  = document.getElementById('custom-format').value.trim().length > 2;
   document.getElementById('generate-btn').disabled = !(hasFormat && hasContent && workerUrl);
 }
 
@@ -1205,13 +964,12 @@ async function callWorker(messages) {
 /* ══ GENERATE ══ */
 async function generateScript() {
   const customFormat = document.getElementById('custom-format').value.trim();
-  if (!selectedFormat && !customFormat) return;
+  if (!customFormat) return;
+  const length = getLength();
 
-  const formatInstruction = selectedFormat
-    ? `${FORMAT_PROMPTS[selectedFormat]}`
-    : `FORMAT: ${customFormat}
-The user has specified a custom format: "${customFormat}".
-Apply the universal writing rules, attention architecture, voice calibration, and close requirements from your brief. Structure the script in whatever way best serves this format. Use clear ALL CAPS beat labels to divide the script into logical sections.`;
+  const formatInstruction = `FORMAT: ${customFormat}
+This is a video script. The user has specified the format as: "${customFormat}".${length ? `\nTarget length: ${length}.` : ''}
+Apply the universal writing rules, attention architecture, voice calibration, and close requirements from your brief. Structure the script in whatever way best serves this video format. Use clear ALL CAPS beat labels to divide the script into logical sections.`;
   const content = document.getElementById('content-input').value.trim();
   if (!content) return;
 
@@ -1256,9 +1014,7 @@ Apply the universal writing rules, attention architecture, voice calibration, an
     clearInterval(ticker);
 
     document.getElementById('meta-client').textContent = clientName || 'Client';
-    document.getElementById('meta-format').textContent = selectedFormat
-      ? FORMAT_META[selectedFormat].name
-      : customFormat;
+    document.getElementById('meta-format').textContent = customFormat;
     document.getElementById('meta-time').textContent =
       new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
