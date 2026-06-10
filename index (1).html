@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Script Developer — Influence Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+
+/* ── TOKENS ── */
+:root {
+  --black:       #000000;
+  --white:       #ffffff;
+  --off-white:   #f5f5f5;
+  --grey-light:  #ebebeb;
+  --grey-mid:    #c8c8c8;
+  --grey:        #888888;
+  --grey-dark:   #444444;
+  --red:         #dd3248;
+  --green:       #8cc664;
+  --blue:        #7299f4;
+  --yellow:      #ffdd4e;
+  --purple:      #dfaafd;
+  --red-light:   #ffbdce;
+  --green-light: #bff45d;
+  --ff-mono:     'IBM Plex Mono', 'Courier New', monospace;
+  --ff-sans:     'IBM Plex Sans', Helvetica, Arial, sans-serif;
+  --ff-body:     Helvetica, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ── BASE ── */
+body {
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--ff-body);
+  font-weight: 300;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── CONFIG BANNER ── */
+#config-banner {
+  background: var(--yellow);
+  border-bottom: 2px solid var(--black);
+  padding: 0.55rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+#config-banner.hidden { display: none; }
+.banner-label {
+  font-family: var(--ff-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--black);
+  white-space: nowrap;
+}
+.banner-input-wrap { display: flex; gap: 0.4rem; flex: 1; min-width: 260px; }
+.banner-input-wrap input {
+  flex: 1;
+  background: var(--white);
+  border: 1.5px solid var(--black);
+  padding: 0.3rem 0.7rem;
+  font-family: var(--ff-mono);
+  font-size: 0.7rem;
+  color: var(--black);
+  outline: none;
+}
+.banner-input-wrap input:focus { outline: 2px solid var(--black); }
+.banner-save {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  padding: 0.3rem 0.85rem;
+  font-family: var(--ff-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.banner-save:hover { background: var(--grey-dark); }
+.banner-note { font-family: var(--ff-mono); font-size: 0.58rem; color: var(--black); opacity: 0.6; }
+.banner-dismiss {
+  background: none; border: none;
+  font-family: var(--ff-mono); font-size: 0.58rem;
+  color: var(--black); cursor: pointer; text-decoration: underline; white-space: nowrap;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--black);
+  padding: 0 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 2rem;
+}
+.header-left { display: flex; align-items: center; gap: 1.25rem; }
+.header-logo-wrap { display: flex; align-items: center; text-decoration: none; }
+.header-logo-wrap svg { display: block; }
+.header-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.2); }
+.header-tool {
+  font-family: var(--ff-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: -0.01em;
+}
+.header-right { display: flex; align-items: center; gap: 1rem; }
+.header-status {
+  font-family: var(--ff-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+.status-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--grey);
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  transition: background 0.3s;
+}
+.status-dot.ready { background: var(--green); }
+
+/* ── LAYOUT ── */
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  min-height: calc(100vh - 63px);
+}
+
+/* ── LEFT PANEL ── */
+.input-panel {
+  border-right: 2px solid var(--black);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(100vh - 63px);
+  background: var(--off-white);
+}
+
+/* ── PANEL SECTIONS ── */
+.panel-section {
+  padding: 1.4rem 1.75rem;
+  border-bottom: 1px solid var(--grey-light);
+}
+.panel-section:last-child { border-bottom: none; }
+
+.section-label {
+  font-family: var(--ff-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey);
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--grey-light); }
+.section-label .num {
+  font-family: var(--ff-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  padding: 0.1rem 0.45rem;
+  letter-spacing: 0.08em;
+  color: var(--black);
+}
+.num-01 { background: var(--yellow); }
+.num-02 { background: var(--red); color: var(--white) !important; }
+.num-03 { background: var(--blue); color: var(--white) !important; }
+.num-04 { background: var(--green); }
+
+/* ── CLIENT FIELDS ── */
+.client-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+.field-wrap { display: flex; flex-direction: column; gap: 0.3rem; }
+.field-label {
+  font-family: var(--ff-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+
+/* ── INPUTS ── */
+input[type="text"], textarea, select {
+  width: 100%;
+  background: var(--white);
+  border: 1.5px solid var(--grey-mid);
+  padding: 0.65rem 0.85rem;
+  font-family: var(--ff-body);
+  font-weight: 300;
+  font-size: 0.82rem;
+  color: var(--black);
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.12s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--black); }
+input::placeholder, textarea::placeholder { color: var(--grey-mid); font-style: normal; }
+textarea { resize: vertical; min-height: 110px; }
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  padding-right: 2.2rem;
+  cursor: pointer;
+}
+
+/* ── FORMAT GRID ── */
+.format-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+.format-btn {
+  background: var(--white);
+  border: 1.5px solid var(--grey-mid);
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.1s;
+  position: relative;
+  border-left-width: 3px;
+}
+.format-btn:hover { border-color: var(--black); background: var(--off-white); }
+.format-btn.active {
+  background: var(--black);
+  border-color: var(--black);
+  color: var(--white);
+}
+.format-btn[data-format="story"]      { border-left-color: var(--red); }
+.format-btn[data-format="explainer"]  { border-left-color: var(--blue); }
+.format-btn[data-format="interview"]  { border-left-color: var(--green); }
+.format-btn[data-format="timely"]     { border-left-color: var(--yellow); }
+.format-btn[data-format="recap"]      { border-left-color: var(--purple); }
+.format-btn[data-format="preview"]    { border-left-color: var(--green-light); }
+.format-btn[data-format="foundation"] { border-left-color: var(--red-light); }
+.format-btn.active { border-left-color: var(--red) !important; }
+.fmt-name {
+  display: block;
+  font-family: var(--ff-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.2rem;
+}
+.fmt-desc {
+  display: block;
+  font-family: var(--ff-mono);
+  font-size: 0.56rem;
+  opacity: 0.5;
+  line-height: 1.3;
+}
+.format-btn.active .fmt-desc { opacity: 0.55; }
+.format-btn.full-width { grid-column: span 2; }
+
+/* ── CUSTOM FORMAT ── */
+.custom-format-wrap {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--grey-light);
+}
+.format-detail {
+  display: none;
+  margin-top: 0.65rem;
+  background: var(--black);
+  padding: 0.7rem 0.9rem;
+  font-family: var(--ff-mono);
+  font-size: 0.58rem;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.7);
+  border-left: 3px solid var(--red);
+}
+.format-detail.visible { display: block; }
+.format-detail strong {
+  display: block;
+  font-size: 0.58rem;
+  color: var(--red);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+/* ── GENERATE ── */
+.generate-btn {
+  width: 100%;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  padding: 1rem 1.5rem;
+  font-family: var(--ff-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.12s;
+}
+.generate-btn:hover:not(:disabled) { background: var(--red); }
+.generate-btn:disabled { background: var(--grey-mid); color: var(--grey); cursor: not-allowed; }
+.generate-btn .arrow { font-size: 1rem; transition: transform 0.15s; }
+.generate-btn:hover:not(:disabled) .arrow { transform: translateX(5px); }
+
+/* ── RIGHT PANEL ── */
+.output-panel {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(100vh - 63px);
+  background: var(--white);
+}
+
+/* ── OUTPUT HEADER ── */
+.output-header {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--grey-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  background: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.output-heading {
+  font-family: var(--ff-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+.output-actions { display: flex; gap: 0.4rem; }
+.action-btn {
+  font-family: var(--ff-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border: 1.5px solid var(--grey-mid);
+  background: none;
+  color: var(--grey);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.action-btn:hover { border-color: var(--black); color: var(--black); }
+.action-btn.success { border-color: var(--green); color: var(--green); background: #f0f9ea; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  padding: 4rem 3rem;
+}
+.empty-icon {
+  width: 48px; height: 48px;
+  background: var(--red);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-mono);
+  font-size: 1.2rem;
+  color: var(--white);
+}
+.empty-title {
+  font-family: var(--ff-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--black);
+  letter-spacing: -0.01em;
+}
+.empty-hint {
+  font-family: var(--ff-mono);
+  font-size: 0.6rem;
+  color: var(--grey-mid);
+  letter-spacing: 0.06em;
+  line-height: 1.8;
+  max-width: 260px;
+}
+
+/* ── LOADING ── */
+.loading-state {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 4rem 3rem;
+}
+.loading-state.visible { display: flex; }
+.loading-bar-wrap {
+  width: 120px; height: 2px;
+  background: var(--grey-light);
+  overflow: hidden;
+}
+.loading-bar {
+  height: 100%; width: 40%;
+  background: var(--red);
+  animation: sweep 1.6s ease-in-out infinite;
+}
+@keyframes sweep {
+  0%   { transform: translateX(-100%); width: 30%; }
+  50%  { width: 70%; }
+  100% { transform: translateX(300%); width: 30%; }
+}
+.loading-msg {
+  font-family: var(--ff-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--grey);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── SCRIPT OUTPUT ── */
+.script-output {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  padding: 2rem;
+}
+.script-output.visible { display: flex; }
+
+.script-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--grey-light);
+  flex-wrap: wrap;
+}
+.meta-tag {
+  font-family: var(--ff-mono);
+  font-size: 0.56rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+}
+.meta-tag.client { background: var(--blue); color: var(--white); }
+.meta-tag.format { background: var(--red); color: var(--white); }
+.meta-tag.time   { border: 1.5px solid var(--grey-light); color: var(--grey); }
+
+/* ── EDITABLE SCRIPT ── */
+#script-editable {
+  flex: 1;
+  font-family: var(--ff-body);
+  font-weight: 300;
+  font-size: 0.875rem;
+  line-height: 1.85;
+  color: var(--black);
+  background: var(--white);
+  border: 1.5px solid var(--grey-light);
+  padding: 1.75rem 2rem;
+  white-space: pre-wrap;
+  outline: none;
+  cursor: text;
+  transition: border-color 0.12s;
+  min-height: 300px;
+}
+#script-editable:focus { border-color: var(--black); }
+
+.beat-label {
+  display: block;
+  font-family: var(--ff-mono);
+  font-size: 0.56rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-top: 1.5rem;
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--grey-light);
+}
+.beat-label:first-child { margin-top: 0; }
+.script-line { display: block; margin-bottom: 0.1rem; }
+
+/* ── REFINE BAR ── */
+.refine-bar {
+  display: none;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  align-items: stretch;
+}
+.refine-bar input:focus { border-color: var(--blue); outline: none; }
+.refine-bar input {
+  flex: 1;
+  min-height: unset;
+  font-size: 0.8rem;
+  padding: 0.6rem 0.85rem;
+}
+.refine-btn {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  padding: 0 1.1rem;
+  font-family: var(--ff-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.refine-btn:hover { background: var(--red); }
+.refine-btn:disabled { background: var(--grey-mid); cursor: not-allowed; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--ff-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  padding: 0.65rem 1.25rem;
+  z-index: 999;
+  transition: transform 0.25s ease;
+  max-width: 90vw;
+  text-align: center;
+  pointer-events: none;
+}
+.toast.visible { transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--red); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--grey-light); }
+
+/* ── FOOTER ── */
+.panel-footer {
+  padding: 0.75rem 1.75rem;
+  border-top: 1px solid var(--grey-light);
+  font-family: var(--ff-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-mid);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--off-white);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  main { grid-template-columns: 1fr; }
+  .input-panel { border-right: none; border-bottom: 2px solid var(--black); max-height: none; overflow-y: visible; }
+  .output-panel { max-height: none; }
+  header { padding: 0 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ CONFIG BANNER ══ -->
+<div id="config-banner">
+  <span class="banner-label">⚙ API Endpoint</span>
+  <div class="banner-input-wrap">
+    <input type="text" id="worker-url-input" placeholder="https://your-worker.workers.dev" autocomplete="off" spellcheck="false"/>
+    <button class="banner-save" onclick="saveWorkerUrl()">Save</button>
+  </div>
+  <span class="banner-note">Paste your Cloudflare Worker URL. Saved to this browser only.</span>
+  <button class="banner-dismiss" onclick="dismissBanner()">Dismiss</button>
+</div>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-left">
+    <a href="#" class="header-logo-wrap">
+      <svg height="22" viewBox="0 0 2890 254" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Influence Digital">
+        <path d="M1.24 247.96C0.41 247.14 0 246.16 0 244.98V8.39002C0 7.22002 0.41 6.24002 1.24 5.41002C2.07 4.58002 3.06 4.18002 4.24 4.18002H36.76C37.94 4.18002 38.94 4.59002 39.76 5.41002C40.58 6.23002 41 7.22002 41 8.39002V244.99C41 246.16 40.59 247.15 39.76 247.97C38.93 248.79 37.93 249.19 36.76 249.19H4.24C3.06 249.19 2.06 248.79 1.24 247.97V247.96Z" fill="white"/><path d="M222.88 5.41002C223.7 4.60002 224.69 4.18002 225.86 4.18002H257.72C258.74 4.18002 259.75 4.49002 260.52 5.16002C261.51 6.03002 262 7.10002 262 8.38002V244.98C262 246.28 261.5 247.35 260.5 248.21C259.73 248.88 258.71 249.18 257.7 249.18H226.69C224.36 249.18 222.72 248.25 221.8 246.38L121.1 81.19C120.63 80.49 120.17 80.2 119.7 80.31C119.23 80.43 119 80.96 119 81.89L119.7 244.99C119.7 246.29 119.2 247.36 118.2 248.22C117.43 248.89 116.41 249.19 115.4 249.19H83.21C82.04 249.19 81.05 248.79 80.23 247.97C79.41 247.15 79 246.17 79 244.99V8.49002C79 7.47002 79.31 6.46002 79.97 5.69002C80.83 4.69002 81.91 4.19002 83.21 4.19002H114.4C116.73 4.19002 118.37 5.13002 119.31 6.99002L219.9 172.19C220.37 172.89 220.83 173.19 221.3 173.07C221.77 172.95 222 172.43 222 171.49L221.65 8.39002C221.65 7.22002 222.06 6.24002 222.88 5.41002Z" fill="white"/><path d="M460.5 38.22C459.73 38.88 458.71 39.19 457.7 39.19H338.76C337.79 39.19 337.01 39.97 337.01 40.94V106.44C337.01 107.41 337.79 108.19 338.76 108.19H418.73C419.75 108.19 420.76 108.5 421.53 109.17C422.52 110.04 423.01 111.11 423.01 112.39V138.99C423.01 140.29 422.51 141.36 421.51 142.22C420.74 142.88 419.72 143.19 418.71 143.19H338.77C337.8 143.19 337.02 143.97 337.02 144.94V244.99C337.02 246.16 336.61 247.15 335.78 247.97C334.95 248.79 333.95 249.19 332.78 249.19H300.26C299.08 249.19 298.08 248.79 297.26 247.97C296.43 247.15 296.02 246.17 296.02 244.99V8.39002C296.02 7.22002 296.43 6.24002 297.26 5.41002C298.09 4.58002 299.08 4.18002 300.26 4.18002H457.73C458.75 4.18002 459.76 4.49002 460.53 5.16002C461.52 6.03002 462.02 7.10002 462.02 8.38002V34.98C462.02 36.28 461.52 37.35 460.52 38.21L460.5 38.22Z" fill="white"/><path d="M481.23 247.96C480.41 247.14 480 246.16 480 244.98V8.50002C480 7.48002 480.31 6.45002 480.98 5.68002C481.85 4.68002 482.93 4.18002 484.24 4.18002H516.7C517.71 4.18002 518.72 4.49002 519.48 5.15002C520.49 6.02002 521 7.09002 521 8.38002V212.43C521 213.4 521.78 214.18 522.75 214.18H639.71C640.72 214.18 641.74 214.49 642.5 215.16C643.49 216.03 643.99 217.1 643.99 218.38V244.98C643.99 246.28 643.49 247.35 642.49 248.21C641.72 248.87 640.71 249.18 639.69 249.18H484.2C483.03 249.18 482.04 248.78 481.22 247.96H481.23Z" fill="white"/><path d="M707.07 241.84C693.75 235.07 683.4 225.45 676.04 212.96C668.68 200.48 665 186.07 665 169.74V8.49C665 7.47 665.31 6.46 665.97 5.69C666.83 4.69 667.91 4.19 669.21 4.19H700.71C701.72 4.19 702.73 4.5 703.5 5.16C704.5 6.03 705 7.1 705 8.39V170.44C705 184.21 709.34 195.41 718.02 204.04C726.7 212.68 738.19 216.99 752.5 216.99C766.81 216.99 778.3 212.68 786.98 204.04C795.66 195.41 800 184.21 800 170.44V8.5C800 7.48 800.31 6.46 800.97 5.69C801.84 4.69 802.92 4.19 804.22 4.19H836.71C837.72 4.19 838.74 4.5 839.5 5.17C840.49 6.04 840.99 7.11 840.99 8.39V169.74C840.99 186.07 837.36 200.49 830.12 212.96C822.87 225.45 812.59 235.07 799.27 241.84C785.95 248.61 770.52 251.99 752.99 251.99C735.46 251.99 720.38 248.61 707.06 241.84H707.07Z" fill="white"/><path d="M1040.5 38.22C1039.73 38.88 1038.71 39.19 1037.7 39.19H918.76C917.79 39.19 917.01 39.97 917.01 40.94V106.44C917.01 107.41 917.79 108.19 918.76 108.19H998.73C999.75 108.19 1000.77 108.5 1001.53 109.17C1002.52 110.04 1003.01 111.11 1003.01 112.39V138.99C1003.01 140.29 1002.51 141.36 1001.51 142.22C1000.74 142.88 999.72 143.19 998.71 143.19H918.77C917.8 143.19 917.02 143.97 917.02 144.94V212.44C917.02 213.41 917.8 214.19 918.77 214.19H1037.74C1038.76 214.19 1039.77 214.5 1040.54 215.17C1041.53 216.04 1042.03 217.11 1042.03 218.39V244.99C1042.03 246.29 1041.53 247.36 1040.53 248.22C1039.76 248.88 1038.74 249.19 1037.73 249.19H880.24C879.07 249.19 878.08 248.79 877.26 247.97C876.44 247.15 876.03 246.17 876.03 244.99V8.49C876.03 7.47 876.33 6.46 877 5.69C877.86 4.69 878.94 4.19 880.23 4.19H1037.74C1038.76 4.19 1039.77 4.5 1040.54 5.17C1041.53 6.04 1042.03 7.11 1042.03 8.39V34.99C1042.03 36.29 1041.53 37.36 1040.53 38.22H1040.5Z" fill="white"/><path d="M1213.88 5.41002C1214.7 4.60002 1215.69 4.18002 1216.86 4.18002H1248.72C1249.74 4.18002 1250.75 4.49002 1251.52 5.16002C1252.51 6.03002 1253 7.10002 1253 8.38002V244.98C1253 246.28 1252.5 247.35 1251.5 248.21C1250.73 248.88 1249.71 249.18 1248.7 249.18H1217.69C1215.36 249.18 1213.72 248.25 1212.8 246.38L1112.11 81.18C1111.64 80.48 1111.18 80.19 1110.71 80.3C1110.24 80.42 1110.01 80.95 1110.01 81.88L1110.71 244.98C1110.71 246.28 1110.21 247.35 1109.21 248.21C1108.44 248.88 1107.42 249.18 1106.41 249.18H1074.22C1073.05 249.18 1072.06 248.78 1071.24 247.96C1070.42 247.14 1070.01 246.16 1070.01 244.98V8.49002C1070.01 7.47002 1070.32 6.46002 1070.98 5.69002C1071.84 4.69002 1072.92 4.19002 1074.22 4.19002H1105.41C1107.74 4.19002 1109.38 5.13002 1110.32 6.99002L1210.91 172.19C1211.38 172.89 1211.84 173.19 1212.31 173.07C1212.78 172.95 1213.01 172.43 1213.01 171.49L1212.66 8.39002C1212.66 7.22002 1213.07 6.24002 1213.89 5.41002H1213.88Z" fill="white"/><path d="M1327.06 242.64C1313.63 235.69 1303.26 225.97 1295.96 213.48C1288.65 200.99 1285 186.5 1285 170.01V82.71C1285 66.22 1288.65 51.73 1295.96 39.24C1303.26 26.75 1313.63 17.09 1327.06 10.26C1340.49 3.43001 1356.04 0.0100098 1373.72 0.0100098C1391.4 0.0100098 1406.59 3.31001 1420.02 9.91001C1433.45 16.51 1443.82 25.82 1451.12 37.83C1458.42 49.85 1462.08 63.75 1462.08 79.54C1462.08 80.72 1461.67 81.72 1460.84 82.54C1460.01 83.37 1459.01 83.78 1457.84 83.78L1425.32 85.55C1422.49 85.55 1421.08 84.26 1421.08 81.66C1421.08 67.76 1416.78 56.57 1408.18 48.08C1399.58 39.6 1388.09 35.36 1373.72 35.36C1359.35 35.36 1347.8 39.6 1339.08 48.08C1330.36 56.56 1326 67.76 1326 81.66V171.79C1326 185.46 1330.36 196.53 1339.08 205.01C1347.79 213.49 1359.34 217.73 1373.72 217.73C1388.1 217.73 1399.58 213.55 1408.18 205.18C1416.78 196.82 1421.08 185.69 1421.08 171.78C1421.08 169.19 1422.49 167.89 1425.32 167.89L1457.84 169.3C1459.02 169.3 1460.02 169.65 1460.84 170.36C1461.66 171.07 1462.08 171.9 1462.08 172.83C1462.08 188.86 1458.42 202.93 1451.12 215.07C1443.81 227.21 1433.45 236.58 1420.02 243.17C1406.59 249.77 1391.15 253.07 1373.72 253.07C1356.29 253.07 1340.5 249.6 1327.06 242.64Z" fill="white"/><path d="M1654.49 38.22C1653.72 38.88 1652.7 39.19 1651.68 39.19H1532.74C1531.77 39.19 1530.99 39.97 1530.99 40.94V106.44C1530.99 107.41 1531.77 108.19 1532.74 108.19H1612.71C1613.73 108.19 1614.74 108.5 1615.51 109.17C1616.5 110.04 1616.99 111.11 1616.99 112.39V138.99C1616.99 140.29 1616.49 141.36 1615.49 142.22C1614.72 142.88 1613.7 143.19 1612.69 143.19H1532.74C1531.77 143.19 1530.99 143.97 1530.99 144.94V212.44C1530.99 213.41 1531.77 214.19 1532.74 214.19H1651.79C1653.08 214.19 1654.14 214.69 1655.01 215.68C1655.68 216.44 1655.99 217.46 1655.99 218.48V244.99C1655.99 246.29 1655.49 247.36 1654.49 248.22C1653.72 248.88 1652.7 249.19 1651.69 249.19H1494.2C1493.03 249.19 1492.04 248.79 1491.22 247.97C1490.4 247.15 1489.99 246.17 1489.99 244.99V8.49C1489.99 7.47 1490.29 6.46 1490.96 5.69C1491.82 4.69 1492.9 4.19 1494.2 4.19H1651.71C1652.73 4.19 1653.74 4.5 1654.51 5.17C1655.5 6.04 1656 7.11 1656 8.39V34.99C1656 36.29 1655.5 37.36 1654.49 38.22Z" fill="white"/><path d="M1717.15 242.73C1712.95 238.53 1710.85 233.16 1710.85 226.63C1710.85 220.1 1712.95 214.73 1717.15 210.53C1721.35 206.33 1726.71 204.23 1733.25 204.23C1739.79 204.23 1745.15 206.33 1749.35 210.53C1753.55 214.73 1755.65 220.1 1755.65 226.63C1755.65 233.16 1753.55 238.53 1749.35 242.73C1745.15 246.93 1739.78 249.03 1733.25 249.03C1726.72 249.03 1721.35 246.93 1717.15 242.73Z" fill="white"/><path d="M1817 245.69V7.69C1817 5.76 1818.57 4.19 1820.5 4.19H1900.84C1922.35 4.19 1939.43 9.96 1952.06 21.52C1964.69 33.07 1971 48.88 1971 68.94V184.44C1971 204.51 1964.69 220.32 1952.06 231.86C1939.43 243.41 1922.36 249.19 1900.84 249.19H1820.5C1818.57 249.19 1817 247.62 1817 245.69ZM1831 235.78C1831 236.55 1831.63 237.18 1832.4 237.18H1901.5C1918.72 237.18 1932.27 232.39 1942.16 222.8C1952.05 213.21 1956.99 200.23 1956.99 183.86V69.85C1956.99 53.25 1952.04 40.15 1942.16 30.56C1932.27 20.97 1918.71 16.18 1901.5 16.18H1832.4C1831.63 16.18 1831 16.81 1831 17.58V235.78Z" fill="white"/><path d="M2019 245.69V7.69C2019 5.76 2020.57 4.19 2022.5 4.19H2029.5C2031.43 4.19 2033 5.76 2033 7.69V245.69C2033 247.62 2031.43 249.19 2029.5 249.19H2022.5C2020.57 249.19 2019 247.62 2019 245.69Z" fill="white"/><path d="M2127.25 243.53C2115.47 237.45 2106.32 228.86 2099.79 217.75C2093.26 206.65 2090 193.96 2090 179.69V74.46C2090 59.96 2093.26 47.22 2099.79 36.23C2106.32 25.24 2115.47 16.71 2127.25 10.62C2139.02 4.54 2152.72 1.5 2168.35 1.5C2183.98 1.5 2197.26 4.54 2208.92 10.62C2220.58 16.7 2229.67 25.18 2236.2 36.05C2242.73 46.92 2245.99 59.38 2245.99 73.41V78.68C2245.99 80.61 2244.42 82.18 2242.49 82.18H2236.49C2234.56 82.18 2232.99 80.61 2232.99 78.68V73.43C2232.99 55.7 2227.09 41.35 2215.29 30.38C2203.49 19.42 2188 13.93 2168.84 13.93C2149.68 13.93 2133.79 19.47 2121.87 30.55C2109.95 41.63 2103.99 56.16 2103.99 74.12V179.82C2103.99 197.79 2109.95 212.32 2121.87 223.4C2133.79 234.48 2149.56 240.02 2169.19 240.02C2188.82 240.02 2203.77 234.6 2215.46 223.75C2227.14 212.9 2232.99 198.61 2232.99 180.87V142.57C2232.99 141.8 2232.36 141.17 2231.59 141.17H2174.49C2172.56 141.17 2170.99 139.6 2170.99 137.67V132.67C2170.99 130.74 2172.56 129.17 2174.49 129.17H2242.49C2244.42 129.17 2245.99 130.74 2245.99 132.67V178.63C2245.99 201.31 2238.87 219.32 2224.65 232.65C2210.42 245.98 2191.65 252.64 2168.34 252.64C2152.72 252.64 2139.01 249.6 2127.24 243.52L2127.25 243.53Z" fill="white"/><path d="M2304 245.69V7.69C2304 5.76 2305.57 4.19 2307.5 4.19H2314.5C2316.43 4.19 2318 5.76 2318 7.69V245.69C2318 247.62 2316.43 249.19 2314.5 249.19H2307.5C2305.57 249.19 2304 247.62 2304 245.69Z" fill="white"/><path d="M2524 7.69V12.69C2524 14.62 2522.43 16.19 2520.5 16.19H2450.4C2449.63 16.19 2449 16.82 2449 17.59V245.69C2449 247.62 2447.43 249.19 2445.5 249.19H2438.5C2436.57 249.19 2435 247.62 2435 245.69V17.59C2435 16.82 2434.37 16.19 2433.6 16.19H2366.5C2364.57 16.19 2363 14.62 2363 12.69V7.69C2363 5.76 2364.57 4.19 2366.5 4.19H2520.5C2522.43 4.19 2524 5.76 2524 7.69Z" fill="white"/><path d="M2687.83 246.39L2672.13 198.23C2671.9 197.53 2671.43 197.18 2670.73 197.18H2558.35C2557.65 197.18 2557.18 197.53 2556.95 198.23L2541.59 246.39C2540.89 248.25 2539.5 249.18 2537.4 249.18H2530.53C2527.96 249.18 2527.03 247.9 2527.73 245.33L2605.78 6.98002C2606.48 5.12002 2607.88 4.18002 2609.98 4.18002H2619.08C2621.18 4.18002 2622.58 5.12002 2623.28 6.98002L2702.03 245.33L2702.38 246.73C2702.38 248.37 2701.33 249.18 2699.23 249.18H2692.01C2689.92 249.18 2688.52 248.25 2687.82 246.39H2687.83ZM2561.51 184.66C2561.86 185.01 2562.26 185.19 2562.73 185.19H2666.68C2667.14 185.19 2667.56 185.02 2667.9 184.66C2668.25 184.31 2668.31 183.91 2668.07 183.44L2615.57 23.49C2615.34 23.03 2614.99 22.79 2614.52 22.79C2614.05 22.79 2613.7 23.03 2613.47 23.49L2561.32 183.44C2561.09 183.91 2561.15 184.32 2561.5 184.66H2561.51Z" fill="white"/><path d="M2744 245.69V7.69C2744 5.76 2745.57 4.19 2747.5 4.19H2754.5C2756.43 4.19 2758 5.76 2758 7.69V235.79C2758 236.56 2758.63 237.19 2759.4 237.19H2886.5C2888.43 237.19 2890 238.76 2890 240.69V245.69C2890 247.62 2888.43 249.19 2886.5 249.19H2747.5C2745.57 249.19 2744 247.62 2744 245.69Z" fill="white"/>
+      </svg>
+    </a>
+    <div class="header-divider"></div>
+    <div class="header-tool">Script Developer</div>
+  </div>
+  <div class="header-right">
+    <div class="header-status">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Ready</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ══ LEFT ══ -->
+  <div class="input-panel">
+
+    <!-- CLIENT -->
+    <div class="panel-section">
+      <div class="section-label"><span class="num num-01">01</span> Client</div>
+      <div class="client-grid">
+        <div class="field-wrap">
+          <div class="field-label">Client name</div>
+          <input type="text" id="client-name" placeholder="e.g. Acme Corp" />
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">Industry / sector</div>
+          <input type="text" id="client-sector" placeholder="e.g. Financial services, Healthcare, Tech" />
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">Voice & tone</div>
+          <input type="text" id="client-voice" placeholder="e.g. Expert but accessible, warm but not informal" />
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">Audience</div>
+          <input type="text" id="client-audience" placeholder="e.g. Senior HR professionals, Gen Z consumers" />
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMAT -->
+    <div class="panel-section">
+      <div class="section-label"><span class="num num-02">02</span> Format</div>
+      <div class="format-grid">
+        <button class="format-btn" data-format="story" onclick="selectFormat(this)">
+          <span class="fmt-name">Brand Story</span>
+          <span class="fmt-desc">Case studies, campaigns, docs</span>
+        </button>
+        <button class="format-btn" data-format="explainer" onclick="selectFormat(this)">
+          <span class="fmt-name">Explainer</span>
+          <span class="fmt-desc">Products, ideas, processes</span>
+        </button>
+        <button class="format-btn" data-format="interview" onclick="selectFormat(this)">
+          <span class="fmt-name">Interview</span>
+          <span class="fmt-desc">Expert, founder, customer</span>
+        </button>
+        <button class="format-btn" data-format="timely" onclick="selectFormat(this)">
+          <span class="fmt-name">News & Issues</span>
+          <span class="fmt-desc">Reactive, policy, announcements</span>
+        </button>
+        <button class="format-btn" data-format="recap" onclick="selectFormat(this)">
+          <span class="fmt-name">Event Recap</span>
+          <span class="fmt-desc">Conferences, summits, panels</span>
+        </button>
+        <button class="format-btn" data-format="preview" onclick="selectFormat(this)">
+          <span class="fmt-name">Preview</span>
+          <span class="fmt-desc">Upcoming events, launches</span>
+        </button>
+        <button class="format-btn full-width" data-format="foundation" onclick="selectFormat(this)">
+          <span class="fmt-name">Beginner's Guide</span>
+          <span class="fmt-desc">Onboarding, evergreen education, campaign entry points</span>
+        </button>
+      </div>
+      <div class="format-detail" id="format-detail"></div>
+      <div class="custom-format-wrap">
+        <div class="field-label" style="margin-bottom:0.3rem;">Or describe your own format</div>
+        <input type="text" id="custom-format" placeholder="e.g. 60-second social video, internal town hall, product launch announcement…" oninput="onCustomFormatInput()" />
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="panel-section">
+      <div class="section-label"><span class="num num-03">03</span> Primary content</div>
+      <textarea id="content-input" placeholder="Paste your copy, outline, bullet points, or keywords. The more context you give, the stronger the script."></textarea>
+    </div>
+
+    <!-- SOURCE MATERIAL -->
+    <div class="panel-section">
+      <div class="section-label"><span class="num num-04">04</span> Additional source material <span style="font-weight:300;letter-spacing:0;text-transform:none;font-family:var(--ff-body);font-size:0.75rem;opacity:0.4;">(optional)</span></div>
+      <textarea id="source-input" style="min-height:80px;" placeholder="Paste any supporting text — data, quotes, background notes, product details — that Claude should draw from."></textarea>
+      <div style="margin-top:0.4rem;font-family:var(--ff-mono);font-size:0.56rem;color:var(--grey-mid);letter-spacing:0.06em;">Paste text only. URLs cannot be read by this tool.</div>
+    </div>
+
+    <!-- GENERATE -->
+    <div class="panel-section">
+      <button class="generate-btn" id="generate-btn" onclick="generateScript()" disabled>
+        <span>Generate Script</span>
+        <span class="arrow">→</span>
+      </button>
+    </div>
+
+    <div class="panel-footer">
+      <span>Influence Digital · Script Developer</span>
+      <span>Powered by Claude</span>
+    </div>
+
+  </div>
+
+  <!-- ══ RIGHT ══ -->
+  <div class="output-panel">
+
+    <div class="output-header">
+      <div class="output-heading">Script output</div>
+      <div class="output-actions" id="output-actions" style="display:none">
+        <button class="action-btn" onclick="copyScript(this)">Copy</button>
+        <button class="action-btn" onclick="clearOutput()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">✦</div>
+      <div class="empty-title">No script generated yet</div>
+      <div class="empty-hint">Fill in the client details, choose a format, and paste your content to begin.</div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" id="loading-state">
+      <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+      <div class="loading-msg" id="loading-msg">Writing script…</div>
+    </div>
+
+    <!-- Script -->
+    <div class="script-output" id="script-output">
+      <div class="script-meta">
+        <div class="meta-tag client" id="meta-client">—</div>
+        <div class="meta-tag format" id="meta-format">—</div>
+        <div class="meta-tag time"   id="meta-time">—</div>
+      </div>
+      <div id="script-editable" contenteditable="true" spellcheck="true"></div>
+      <div class="refine-bar" id="refine-bar">
+        <input type="text" id="refine-input" placeholder="Refine: e.g. 'sharpen the hook', 'cut by a third', 'make the CTA more specific'" />
+        <button class="refine-btn" id="refine-btn" onclick="refineScript()">Refine →</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── CONFIG ── */
+const STORAGE_KEY = 'id_script_dev_worker_v1';
+let workerUrl = localStorage.getItem(STORAGE_KEY) || 'https://wna-script-generator.elliot-thorne.workers.dev';
+let selectedFormat = null;
+let conversationHistory = [];
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (workerUrl) {
+    document.getElementById('worker-url-input').value = workerUrl;
+    document.getElementById('config-banner').classList.add('hidden');
+    setStatus('ready');
+  }
+  ['client-name','client-sector','client-voice','client-audience','content-input','custom-format'].forEach(id => {
+    document.getElementById(id).addEventListener('input', validateForm);
+  });
+  document.getElementById('refine-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); refineScript(); }
+  });
+  validateForm();
+});
+
+function saveWorkerUrl() {
+  const val = document.getElementById('worker-url-input').value.trim().replace(/\/$/, '');
+  if (!val.startsWith('http')) { showToast('Please enter a valid URL.', true); return; }
+  workerUrl = val;
+  localStorage.setItem(STORAGE_KEY, workerUrl);
+  document.getElementById('config-banner').classList.add('hidden');
+  setStatus('ready');
+  showToast('Endpoint saved ✓');
+  validateForm();
+}
+
+function dismissBanner() {
+  if (!workerUrl) { showToast('Save your Worker URL first.', true); return; }
+  document.getElementById('config-banner').classList.add('hidden');
+}
+
+function setStatus(state) {
+  const dot  = document.getElementById('status-dot');
+  const text = document.getElementById('status-text');
+  dot.className = 'status-dot' + (state === 'ready' ? ' ready' : '');
+  text.textContent = state === 'generating' ? 'Generating…' : state === 'ready' ? 'Ready' : 'Idle';
+}
+
+/* ══════════════════════════════════════════════════════
+   SYSTEM PROMPT
+   Built from the Universal Scriptwriting Framework.
+   ══════════════════════════════════════════════════════ */
+const SYSTEM_PROMPT = `You are a senior scriptwriter working on behalf of a creative and digital marketing agency. You write scripts for clients across all sectors — brand, corporate, campaign, editorial, and social. Every script is written for a specific client with a specific audience. Your job is to make the message land with the audience.
+
+═══ THE WRITER'S PURPOSE ═══
+
+Before any script is written, four questions must be answered:
+1. Who is the client?
+2. Who is the audience?
+3. What does the audience need to understand, feel, believe, or do?
+4. What must the script achieve for the client without compromising credibility?
+
+The writer's job is not simply to make the client sound good. The writer's job is to make the message land with the audience. That means balancing clarity with accuracy, persuasion with restraint, and brand voice with human language.
+
+═══ CLIENT VOICE ═══
+
+Every client has a voice. Before writing, define it through these filters:
+- What should this client sound like?
+- What should this client never sound like?
+- What does the audience already believe, doubt, want, or misunderstand?
+- What emotional register is appropriate?
+- What level of authority can this client credibly claim?
+
+Strong client voices are built around a tension. Examples:
+- Expert but not inaccessible
+- Warm but not informal
+- Confident but not arrogant
+- Clear but not simplistic
+- Persuasive but not sales-like
+- Ambitious but not unrealistic
+- Serious but not cold
+
+Every client should have a "never" list. The voice is never:
+- Promotional for the sake of it
+- Vague or full of filler
+- Overclaimed or defensive
+- Condescending or generic
+- Sensationalist or emotionally manipulative
+
+A strong script sounds like it could only have come from that client.
+
+═══ AUDIENCE CALIBRATION ═══
+
+Always write for a defined audience, not a generalised viewer.
+
+Primary audience: the people the script most needs to reach.
+- What do they already know?
+- What do they care about?
+- What are they sceptical of?
+- What would make them stop watching?
+- What would make them trust the client?
+
+Scrutiny audience: the people most likely to challenge accuracy, framing, or claims. For technical, regulated, or reputationally sensitive subjects — this group matters. The script must be accessible to the primary audience while surviving scrutiny from the most informed one.
+
+Every script must pass three tests:
+1. Clarity test — Could the intended audience understand this without extra context?
+2. Credibility test — Would a knowledgeable viewer find the claims fair, accurate, and properly framed?
+3. Usefulness test — Does the viewer leave knowing, feeling, or being able to do something they could not before?
+
+═══ UNIVERSAL WRITING RULES ═══
+
+On language:
+- Write for the ear first. Read every sentence aloud before approving it.
+- One idea per sentence as the default.
+- Prefer clear verbs over abstract nouns.
+- Avoid filler phrases and unexplained jargon.
+- Use natural speech rhythm.
+- Do not write lines that look good on a page but sound unnatural when spoken.
+
+On structure:
+- Every section should earn the next.
+- Do not introduce a point unless the script will develop it.
+- Do not summarise when the script needs to resolve.
+- If a detail does not serve the audience, the message, or the structure, cut it.
+
+On claims:
+- Every claim should be supportable.
+- Avoid vague superiority claims and inflated language.
+- Avoid implying certainty where there is nuance.
+- If the subject is complex, let it be complex — then make it understandable.
+
+On emotion:
+- Match the emotional register to the subject.
+- Do not force excitement into serious topics.
+- Do not flatten emotional topics into corporate neutrality.
+- Do not use sentiment as a substitute for substance.
+- Let the audience feel something because the script has earned it.
+
+On calls to action:
+- A CTA should feel like the natural next step, not an interruption.
+- CTAs must be specific, relevant, low-friction, and written in the same voice as the rest of the piece.
+- Never bolt a CTA on.
+
+═══ ATTENTION ARCHITECTURE ═══
+
+Build attention into the writing itself.
+
+Open loops: Introduce a question, tension, or unresolved idea that gives the audience a reason to continue.
+
+Forward-pull transitions: Every transition should make the next section feel necessary. Weak: "Now let's look at the next point." Stronger: "But this is where the story changes."
+
+Progress signals: Help the viewer feel they are moving through the script. Examples: "To understand why, start here." / "That leads to the bigger question." / "This is where the distinction matters."
+
+Pattern breaks: Shift rhythm every 60–90 seconds. A direct question, a shorter sentence, a concrete example, a surprising comparison, a moment of contrast. Pattern breaks support the message — they do not distract from it.
+
+═══ THE CLOSE ═══
+
+Every script ends with two things:
+1. Thematic resolution — The earned final thought. It reframes what came before without simply summarising it. The script should feel like it has arrived somewhere.
+2. The next action — The natural thing the audience should do next. Specific, relevant, and written in the same voice. Never a generic summary. Never a CTA that sounds like an advert.
+
+═══ TONE & EMOTIONAL REGISTER ═══
+
+Overall tone: Authoritative yet accessible. Handle heavy or sensitive subjects with calm assurance — never alarmist, never dismissive. Always measured and trustworthy.
+
+Voice: Institutional but human when the client warrants it. Written from expertise, never condescending. The narrator is a knowledgeable guide — not a lecturer.
+
+Emotional register: Sober and respectful when discussing harm or difficulty; quietly confident when discussing progress or achievement. Never dramatise for effect.
+
+═══ SCRIPT FORMATTING ═══
+
+- Use ALL CAPS labels for each beat/section (e.g. HOOK, CONTEXT, WHY IT MATTERS)
+- Leave a blank line between each section
+- Write prose — no markdown, no bullet points in the script body
+- Direction notes go in [square brackets]
+- Output must be ready to read aloud as a first draft`;
+
+/* ══ FORMAT METADATA ══ */
+const FORMAT_META = {
+  story:      { name: 'Story-led',         beats: 'Hook → Context → Development → Human/Practical Consequence → Resolution → Close + CTA',        length: 'Variable' },
+  explainer:  { name: 'Concept Explainer', beats: 'Hook → Baseline → Explanation → Example or Application → Why It Matters → Close + CTA',        length: 'Variable' },
+  interview:  { name: 'Interview-led',     beats: 'Introduction → Question Architecture → Bridge Lines → Follow-up Prompts → Close → CTA',         length: 'Variable' },
+  timely:     { name: 'Timely Response',   beats: "What Happened → Why It Matters → What You Need To Know → Known & Unknown → Client Perspective → Close + CTA", length: 'Variable' },
+  recap:      { name: 'Event Recap',       beats: 'Opening Significance → Key Moments → Context → Audience Relevance → What Happens Next → Close + CTA', length: 'Variable' },
+  preview:    { name: 'Preview',           beats: "What Is Happening → Why It Matters → What To Watch For → What's Uncertain → Close + CTA",       length: 'Variable' },
+  foundation: { name: 'Foundation Guide',  beats: 'Hook → Start From Zero → Build Logically → Address The Obvious Concern → Why This Matters Now → Close + CTA', length: 'Variable' }
+};
+
+/* ══ FORMAT PROMPTS ══ */
+const FORMAT_PROMPTS = {
+  story: `FORMAT: Story-led Script
+For brand stories, campaign films, case studies, documentaries, founder stories, historical pieces.
+The job: Take the viewer through a story with a clear beginning, development, consequence, and resolution.
+
+Structure — use these exact labels in ALL CAPS:
+
+HOOK
+Surface the tension, question, or moment that makes the story worth watching. Do not mistake chronology for story — a story needs tension, movement, and meaning.
+
+CONTEXT
+Establish what the viewer needs to know before the story moves.
+
+DEVELOPMENT
+Show what happened, changed, escalated, or was discovered.
+
+HUMAN OR PRACTICAL CONSEQUENCE
+Explain why it mattered to real people, organisations, communities, customers, or the client.
+
+RESOLUTION
+Show what changed, what was learned, or what the story reveals.
+
+CLOSE + CTA
+End with a thought that resolves the story and naturally leads to the next action. The CTA must feel like the logical next step, not an interruption.`,
+
+  explainer: `FORMAT: Concept Explainer
+For products, services, ideas, processes, terminology, technology, policies, systems.
+The job: Take one thing the audience does not fully understand and make it clear. One concept per script.
+
+Structure — use these exact labels in ALL CAPS:
+
+HOOK
+Frame the question the script answers.
+
+BASELINE
+Start with what the audience probably knows, assumes, or gets wrong.
+
+EXPLANATION
+Build the concept step by step. Each step earns the next. No jargon without immediate context.
+
+EXAMPLE OR APPLICATION
+Show how it works in the real world.
+
+WHY IT MATTERS
+Connect the explanation to the audience's life, work, decision, or problem.
+
+CLOSE + CTA
+Resolve the opening question clearly. The CTA is the natural next step.
+
+Writer's note: One concept per script. If the explanation needs several other explanations to work, the topic is too broad.`,
+
+  interview: `FORMAT: Interview-led Script
+For expert interviews, founder interviews, customer conversations, partner films, internal leadership content.
+The job: Script the frame, not the person. The guest provides the substance. The script provides the authority context that makes that substance land.
+
+Structure — use these exact labels in ALL CAPS:
+
+INTRODUCTION
+Who is speaking, why they matter, and what question the conversation will answer. Factual, not promotional.
+
+QUESTION ARCHITECTURE
+Write 6–8 questions in order of increasing depth: start accessible, move toward specificity and reflection. Each question should be answerable without the previous — but more rewarding if the viewer has followed from the start.
+
+BRIDGE LINES
+Short transitions that maintain momentum between topics without interrupting the guest's voice.
+
+FOLLOW-UP PROMPTS
+Questions that invite examples, stories, evidence, or clarification.
+
+CLOSE + CTA
+Draw out one clear thread from the conversation. Not a summary — a conclusion. Then the CTA.
+
+Writer's note: The best interview scripts create the conditions for a strong answer. Do not over-script the speaker.`,
+
+  timely: `FORMAT: Timely Response Script
+For news, announcements, policy changes, product launches, industry developments, reactive content.
+The job: Help the audience understand what has happened, why it matters, and what to do or think next. Speed is useful. Accuracy is essential.
+
+Structure — use these exact labels in ALL CAPS:
+
+WHAT HAPPENED
+State the development clearly and early. No wind-up.
+
+WHY IT MATTERS
+Explain the relevance to the audience.
+
+WHAT YOU NEED TO KNOW
+Provide the essential context in plain language.
+
+WHAT IS KNOWN AND UNKNOWN
+Separate fact from interpretation. If something is uncertain, say so explicitly.
+
+CLIENT PERSPECTIVE
+Add the client's useful, credible contribution to the conversation. Not opinion for its own sake — genuine value-add.
+
+CLOSE + CTA
+Tell the audience where to go next or what to watch for.`,
+
+  recap: `FORMAT: Event Recap Script
+For conferences, launches, panels, festivals, summits, exhibitions, activations.
+The job: Explain the significance of an event, not just what happened at it. A list of speakers or sessions is not a script.
+
+Structure — use these exact labels in ALL CAPS:
+
+OPENING SIGNIFICANCE
+Why did this event matter? What was at stake going in?
+
+KEY MOMENTS
+Select two or three meaningful highlights. Each treated as a mini-narrative: what happened, why it's significant, what it signals or changes.
+
+CONTEXT
+Explain why those moments mattered beyond the room.
+
+AUDIENCE RELEVANCE
+Connect the event to what the viewer actually cares about.
+
+WHAT HAPPENS NEXT
+Show the event's consequence or next step.
+
+CLOSE + CTA
+Resolve with a clear forward path.`,
+
+  preview: `FORMAT: Preview / What to Expect Script
+For upcoming events, campaigns, launches, milestones, reports, seasonal activity.
+The job: Prepare the viewer for something that is about to happen and give them a reason to care. Anticipation should come from relevance, not hype.
+
+Structure — use these exact labels in ALL CAPS:
+
+WHAT IS HAPPENING
+Describe the event, campaign, launch, or moment plainly.
+
+WHY IT MATTERS
+Explain the relevance to the audience specifically.
+
+WHAT TO WATCH FOR
+Two or three specific, concrete, verifiable things to pay attention to.
+
+WHAT IS UNCERTAIN OR STILL DEVELOPING
+Create legitimate anticipation by being honest about what is not yet known.
+
+CLOSE + CTA
+Point toward the follow-up, launch, event, or next piece of content.`,
+
+  foundation: `FORMAT: Foundation Guide
+For beginner guides, onboarding content, introductory explainers, evergreen education, campaign entry points.
+The job: Give the audience the clearest possible starting point. Beginner content is not basic content — it is often the hardest content to write well.
+
+Structure — use these exact labels in ALL CAPS:
+
+HOOK
+Begin with the question the audience already has, stated plainly.
+
+START FROM ZERO
+Assume no prior knowledge. Do not assume low intelligence. These are different things.
+
+BUILD LOGICALLY
+Each idea should make the next idea easier to understand.
+
+ADDRESS THE OBVIOUS CONCERN
+Name what the audience is likely thinking or worried about. Meet it directly.
+
+WHY THIS MATTERS NOW
+Connect the foundation to a current need, decision, or context.
+
+CLOSE + CTA
+Send the viewer to the next logical step.`
+};
+
+/* ══ FORMAT SELECTION ══ */
+function selectFormat(btn) {
+  document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedFormat = btn.dataset.format;
+  const meta = FORMAT_META[selectedFormat];
+  const detail = document.getElementById('format-detail');
+  detail.innerHTML = `<strong>${meta.name}</strong>${meta.beats}`;
+  detail.classList.add('visible');
+  // clear custom input
+  document.getElementById('custom-format').value = '';
+  validateForm();
+}
+
+function onCustomFormatInput() {
+  const val = document.getElementById('custom-format').value.trim();
+  if (val.length > 0) {
+    // deselect any active format button
+    document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+    selectedFormat = null;
+    document.getElementById('format-detail').classList.remove('visible');
+  }
+  validateForm();
+}
+
+/* ══ VALIDATION ══ */
+function validateForm() {
+  const hasContent = document.getElementById('content-input').value.trim().length > 10;
+  const hasFormat  = !!selectedFormat || document.getElementById('custom-format').value.trim().length > 3;
+  document.getElementById('generate-btn').disabled = !(hasFormat && hasContent && workerUrl);
+}
+
+/* ══ UI STATE ══ */
+function showEmpty() {
+  document.getElementById('empty-state').style.display = '';
+  document.getElementById('loading-state').classList.remove('visible');
+  document.getElementById('script-output').classList.remove('visible');
+  document.getElementById('output-actions').style.display = 'none';
+  document.getElementById('refine-bar').classList.remove('visible');
+}
+function showLoading(msg) {
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('loading-state').classList.add('visible');
+  document.getElementById('script-output').classList.remove('visible');
+  document.getElementById('output-actions').style.display = 'none';
+  document.getElementById('loading-msg').textContent = msg || 'Writing script…';
+}
+function showScript() {
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('loading-state').classList.remove('visible');
+  document.getElementById('script-output').classList.add('visible');
+  document.getElementById('output-actions').style.display = '';
+}
+
+/* ══ RENDER ══ */
+function renderScript(text) {
+  const el = document.getElementById('script-editable');
+  let html = '';
+  text.split('\n').forEach(line => {
+    const t = line.trim();
+    if (!t) { html += '<br>'; return; }
+    const isBeat = /^[A-Z][A-Z\s\d'—→:–\/+&]+$/.test(t) && t.length < 90;
+    if (isBeat) html += `<span class="beat-label">${esc(t)}</span>`;
+    else        html += `<span class="script-line">${esc(t)}</span>`;
+  });
+  el.innerHTML = html;
+  el.scrollTop = 0;
+}
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ══ API ══ */
+async function callWorker(messages) {
+  if (!workerUrl) throw new Error('No Worker URL set.');
+  const res = await fetch(`${workerUrl}/api/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system: SYSTEM_PROMPT, messages, max_tokens: 4000 })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  return data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+}
+
+/* ══ GENERATE ══ */
+async function generateScript() {
+  const customFormat = document.getElementById('custom-format').value.trim();
+  if (!selectedFormat && !customFormat) return;
+
+  const formatInstruction = selectedFormat
+    ? `${FORMAT_PROMPTS[selectedFormat]}`
+    : `FORMAT: ${customFormat}
+The user has specified a custom format: "${customFormat}".
+Apply the universal writing rules, attention architecture, voice calibration, and close requirements from your brief. Structure the script in whatever way best serves this format. Use clear ALL CAPS beat labels to divide the script into logical sections.`;
+  const content = document.getElementById('content-input').value.trim();
+  if (!content) return;
+
+  const clientName     = document.getElementById('client-name').value.trim();
+  const clientSector   = document.getElementById('client-sector').value.trim();
+  const clientVoice    = document.getElementById('client-voice').value.trim();
+  const clientAudience = document.getElementById('client-audience').value.trim();
+  const source         = document.getElementById('source-input').value.trim();
+
+  const clientContext = [
+    clientName     ? `Client: ${clientName}` : '',
+    clientSector   ? `Industry/Sector: ${clientSector}` : '',
+    clientVoice    ? `Voice & Tone: ${clientVoice}` : '',
+    clientAudience ? `Target Audience: ${clientAudience}` : '',
+  ].filter(Boolean).join('\n');
+
+  const userMsg =
+    `Please write a script using the format specification below.\n\n` +
+    `${formatInstruction}\n\n` +
+    (clientContext ? `CLIENT CONTEXT:\n${clientContext}\n\n` : '') +
+    `PRIMARY CONTENT:\n${content}\n\n` +
+    (source ? `ADDITIONAL SOURCE MATERIAL:\n${source}\n\n` : '') +
+    `Write the complete script now. Use the ALL CAPS beat labels. Write prose — no bullet points. Every sentence must work read aloud. Apply all voice, audience, and attention architecture rules from your brief.`;
+
+  conversationHistory = [{ role: 'user', content: userMsg }];
+
+  showLoading('Writing script…');
+  setStatus('generating');
+  document.getElementById('generate-btn').disabled = true;
+
+  const msgs = ['Writing script…','Calibrating voice…','Building structure…','Shaping the hook…','Crafting the close…','Reviewing for clarity…'];
+  let mi = 0;
+  const ticker = setInterval(() => {
+    mi = (mi + 1) % msgs.length;
+    const el = document.getElementById('loading-msg');
+    if (el) el.textContent = msgs[mi];
+  }, 2000);
+
+  try {
+    const scriptText = await callWorker(conversationHistory);
+    conversationHistory.push({ role: 'assistant', content: scriptText });
+    clearInterval(ticker);
+
+    document.getElementById('meta-client').textContent = clientName || 'Client';
+    document.getElementById('meta-format').textContent = selectedFormat
+      ? FORMAT_META[selectedFormat].name
+      : customFormat;
+    document.getElementById('meta-time').textContent =
+      new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    showScript();
+    renderScript(scriptText);
+    document.getElementById('refine-bar').classList.add('visible');
+    setStatus('ready');
+  } catch (err) {
+    clearInterval(ticker);
+    showEmpty();
+    setStatus('ready');
+    showToast(err.message, true);
+  } finally {
+    validateForm();
+  }
+}
+
+/* ══ REFINE ══ */
+async function refineScript() {
+  const instruction = document.getElementById('refine-input').value.trim();
+  if (!instruction || conversationHistory.length < 2) return;
+
+  const refineBtn   = document.getElementById('refine-btn');
+  const refineInput = document.getElementById('refine-input');
+  const editEl      = document.getElementById('script-editable');
+
+  refineBtn.disabled = true;
+  refineInput.disabled = true;
+  editEl.style.opacity = '0.35';
+  editEl.style.pointerEvents = 'none';
+  setStatus('generating');
+
+  conversationHistory.push({
+    role: 'user',
+    content: `Please refine the script as follows: ${instruction}\n\nReturn the complete revised script with the same ALL CAPS beat label formatting. Maintain all voice, audience, and writing quality standards.`
+  });
+
+  try {
+    const revised = await callWorker(conversationHistory);
+    conversationHistory.push({ role: 'assistant', content: revised });
+    renderScript(revised);
+    document.getElementById('meta-time').textContent =
+      new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · revised';
+    refineInput.value = '';
+    showToast('Script refined ✓');
+  } catch (err) {
+    showToast(err.message, true);
+    conversationHistory.pop();
+  } finally {
+    editEl.style.opacity = '1';
+    editEl.style.pointerEvents = '';
+    refineBtn.disabled = false;
+    refineInput.disabled = false;
+    refineInput.focus();
+    setStatus('ready');
+  }
+}
+
+/* ══ COPY ══ */
+async function copyScript(btn) {
+  try {
+    await navigator.clipboard.writeText(document.getElementById('script-editable').innerText);
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('success');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('success'); }, 2200);
+  } catch {
+    showToast('Copy failed — select and copy manually.', true);
+  }
+}
+
+/* ══ CLEAR ══ */
+function clearOutput() {
+  conversationHistory = [];
+  document.getElementById('script-editable').innerHTML = '';
+  showEmpty();
+}
+
+/* ══ TOAST ══ */
+function showToast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (isError ? ' error' : '');
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 3200);
+}
+</script>
+</body>
+</html>
